@@ -1,0 +1,112 @@
+<!-- [START apps_script_forms_notifications_quickstart] -->
+<!DOCTYPE html>
+<html>
+<head>
+    <base target="_top">
+    <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+    <!-- The CSS package above applies Google styling to buttons and other elements. -->
+    <style>
+        .sidebar input,
+        .sidebar textarea {
+            display: block;
+            margin-top: 10px;
+            width: 100%;
+        }
+        .sidebar .mandatory {color: #FF0000;}
+        .sidebar td{ border: 0;}
+    </style>
+
+</head>
+<body>
+<div class="sidebar">
+    <form method="post" name="form_setting" onsubmit="saveSettings(this);return false;">
+        <table cellpadding="10" border="0">
+            <tr>
+                <td>Email Subject <span class="mandatory">*</span>
+                    <input type="text" required="true" placeholder="Email subject" name="subject" value="" />
+                </td>
+            </tr>
+
+            <tr>
+                <td>Email <span class="mandatory">*</span>
+                    <input type="email" required="true" placeholder="Receiver Email" name="email">
+                </td>
+            </tr>
+            <tr>
+                <td>Email body <span class="mandatory">*</span>
+                    <textarea required="true" placeholder="Enter email HTML body" rows="6" cols="40" name="body">Hi,<br />You get a new message: {body}</textarea>
+                </td>
+            </tr>
+            <tr>
+                <td>Sender Name <span class="mandatory">*</span>
+                    <input required="true" type="text" placeholder="Enter sender name" name="sender">
+                </td>
+            </tr>
+            <tr>
+                <td><button class="action">Save</button><span id="save-result"></span></td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js">
+</script>
+<script>
+    /**
+     * On document load, assign required handlers to each element,
+     * and attempt to load any saved settings.
+     */
+    $(function() {
+
+
+        google.script.run
+            .withSuccessHandler(applySettings)
+            //.withFailureHandler($('#save-result').text('Load settings failed!'))
+            .withUserObject($('#save-result').get())
+            .getSettings();
+
+
+    });
+
+    /**
+     * Callback function that populates the notification options using
+     * previously saved values.
+     *
+     * @param {Object} settings The saved settings from the client.
+     */
+    function applySettings(settings) {
+        document.form_setting.subject.value = settings.hasAttribute('subject') ? settings.subject : '';
+        document.form_setting.email.value = settings.hasAttribute('email') ? settings.email : '';
+        document.form_setting.body.value = settings.hasAttribute('body') ? settings.body : '';
+        document.form_setting.sender.value = settings.hasAttribute('sender') ? settings.sender : '';
+
+    }
+
+
+    function saveSettings(doc) {
+        var settings = {
+            'subject': doc.subject.value,
+            'email': doc.email.value,
+            'body': doc.body.value,
+            'sender': doc.sender.value
+        };
+
+        // Save the settings on the server
+        google.script.run
+            .withSuccessHandler(
+                function(msg, element) {
+                    $('#save-result').text('Saved success!');
+                    element.disabled = false;
+                })
+            .withFailureHandler(
+                function(msg, element) {
+                    $('#save-result').text('Saved Failed!');
+                    element.disabled = false;
+                })
+            .withUserObject(this)
+            .saveSettings(settings);
+    }
+</script>
+</body>
+</html>
+<!-- [END apps_script_forms_notifications_quickstart] -->
